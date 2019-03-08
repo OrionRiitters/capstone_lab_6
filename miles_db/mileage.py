@@ -18,6 +18,8 @@ def add_miles(vehicle, new_miles):
     If the vehicle is None or new_miles is not a positive number, raise MileageError
     '''
 
+    vehicle = vehicle.upper()
+
     if not vehicle:
         raise MileageError('Provide a vehicle name')
     if not isinstance(new_miles, (int, float))  or new_miles < 0:
@@ -31,16 +33,38 @@ def add_miles(vehicle, new_miles):
     conn.commit()
     conn.close()
 
+def search_vehicle(vehicle):
+    """
+    Queries the database for a vehicle. If found, returns mileage of vehicle.
+    """
+    if not vehicle:
+        raise MileageError('Provide a vehicle name')
+
+    vehicle = vehicle.upper()
+
+    conn = sqlite3.connect(db_url)
+    cursor = conn.cursor()
+    query = cursor.execute('SELECT total_miles from miles where vehicle = (?)', [vehicle])
+    result = query.fetchone()
+
+    conn.close()
+
+    if result:
+        return result[0]
+    else:
+        return None
+
 
 def main():
     while True:
         vehicle = input('Enter vehicle name or enter to quit:')
         if not vehicle:
             break
-        miles = float(input('Enter new miles for %s: ' % vehicle)) ## TODO input validation
+       # miles = float(input('Enter new miles for %s: ' % vehicle))
 
-        add_miles(vehicle, miles)
+        #add_miles(vehicle, miles)
 
+        print(search_vehicle(vehicle))
 
 if __name__ == '__main__':
     main()
